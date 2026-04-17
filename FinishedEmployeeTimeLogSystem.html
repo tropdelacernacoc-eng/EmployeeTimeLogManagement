@@ -1,0 +1,896 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🏢 Employee Time Log Management</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <div id="main-login" class="section active">
+            <h1>⏰ Employee Time Log Management</h1>
+            <p style="text-align: center; color: #666; margin-bottom: 30px;">Choose your action</p>
+           
+            <div class="role-buttons">
+                <button class="role-btn employee-role" onclick="showEmployeeLogin()">
+                    👤 Employee Login
+                </button>
+                <button class="role-btn register-role" onclick="showEmployeeRegister()">
+                    ➕ Register New Employee
+                </button>
+                <button class="role-btn admin-role" onclick="showAdminLogin()">
+                    👨‍💼 Admin
+                </button>
+            </div>
+        </div>
+
+
+        <div id="employee-register" class="section">
+            <button class="back-btn" onclick="showMainLogin()">← Back</button>
+            <h2>👤 Register New Employee</h2>
+           
+            <!-- <label>Employee ID:</label>
+            <input type="text" id="reg-emp-id" placeholder="EMP001" maxlength="10"> -->
+
+
+            <label>Username:</label>
+            <input type="text" id="reg-emp-username" placeholder="johndoe">
+
+
+            <label>Full Name:</label>
+            <input type="text" id="reg-emp-name" placeholder="John Doe">
+
+
+            <label>Password:</label>
+            <input type="password" id="reg-emp-pass" placeholder="Create password">
+
+
+            <label>Confirm Password:</label>
+            <input type="password" id="reg-emp-pass-confirm" placeholder="Confirm password">
+
+
+            <button class="primary-btn" onclick="employeeRegister()">Register Employee</button>
+            <div id="reg-message"></div>
+        </div>
+
+
+        <div id="employee-login" class="section">
+            <button class="back-btn" onclick="showMainLogin()">← Back</button>
+            <h2>👤 Employee Login</h2>
+           
+            <label>Username:</label>
+            <input type="text" id="emp-username" placeholder="Enter username">
+
+
+            <label>Password:</label>
+            <input type="password" id="emp-pass" placeholder="Enter password">
+
+
+            <button class="primary-btn" onclick="employeeLogin()">Login</button>
+            <div id="login-message"></div>
+        </div>
+
+
+        <div id="employee-dashboard" class="section">
+            <button class="back-btn" onclick="showMainLogin()">← Home</button>
+            <div class="user-info">
+                <span>👤 <strong id="emp-user"></strong></span>
+                <button class="logout-btn" onclick="employeeLogout()">Logout</button>
+            </div>
+
+
+            <div class="action-grid">
+                <button class="action-btn time-in" onclick="empAction(1)">🟢 Time In</button>
+                <button class="action-btn time-out" onclick="empAction(2)">🔴 Time Out</button>
+                <button class="action-btn lunch-start" onclick="empAction(3)">🍽️ Lunch Start</button>
+                <button class="action-btn lunch-end" onclick="empAction(4)">✅ Lunch End</button>
+                <button class="action-btn view-record" onclick="empAction(5)" style="grid-column: span 2;">📊 View Record</button>
+            </div>
+
+
+            <div class="logs" id="emp-logs">Ready to track your time...</div>
+        </div>
+
+
+        <div id="admin-login" class="section">
+            <button class="back-btn"
+                id="_return"
+            >← Back</button>
+            <h2>👨‍💼 Admin Login</h2>
+           
+            <label>Admin User:</label>
+            <input type="text" id="admin-id" placeholder="Enter username">
+
+
+            <label>Password:</label>
+            <input type="password" id="admin-pass" placeholder="Enter password">
+
+
+            <button class="primary-btn" onclick="adminLogin()">Login</button>
+        </div>
+
+
+        <div id="admin-dashboard" class="section">
+            <button class="back-btn" onclick="showMainLogin()">← Home</button>
+            <div class="user-info">
+                <span>👨‍💼 <strong id="admin-user"></strong></span>
+                <button class="logout-btn" onclick="adminLogout()">Logout</button>
+            </div>
+
+
+            <label>🔍 Search Employee ID:</label>
+            <input type="text" id="search-emp" placeholder="EMP001">
+
+
+            <div class="action-grid">
+                <button class="action-btn" onclick="adminViewSingle()">👤 View Single</button>
+                <button class="action-btn" onclick="adminViewAll()">👥 View All</button>
+                <button class="action-btn" onclick="adminManageUsers()" style="grid-column: span 2;">👥 Manage Users</button>
+                <button class="action-btn" onclick="adminClear()" style="grid-column: span 2;">🗑️ Clear Search</button>
+            </div>
+
+
+            <div class="logs" id="admin-logs">Admin dashboard ready...</div>
+        </div>
+    </div>
+
+
+    <script>
+        let employeeData = JSON.parse(localStorage.getItem('employeeData')) || {};
+        let employeeAccounts = JSON.parse(localStorage.getItem('employeeAccounts')) || {};
+        let currentEmpUser = null;
+        let currentAdminUser = null;
+
+
+        function showSection(id) {
+            document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
+        }
+
+
+        function generateEmployeeID() {
+        const count = Object.keys(employeeAccounts).length + 1;
+        return 'EMP' + String(count).padStart(3, '0');
+    }
+
+
+        function showMainLogin() {
+            // clearAllMessages();
+            // showSection('main-login');
+            _return.addEventListener("click", window.location.replace("file:///C:/Users/arnol/Documents/index.html"));
+        }
+        let _return = document.getElementById('_return');
+
+
+
+
+        function showEmployeeRegister() { showSection('employee-register'); }
+        function showEmployeeLogin() { showSection('employee-login'); }
+        function showAdminLogin() { showSection('admin-login'); }
+
+
+        function showMessage(element, message, type) {
+            element.textContent = message;
+            element.className = type;
+        }
+        function employeeRegister() {
+            // const id = document.getElementById('reg-emp-id').value.trim().toUpperCase();
+            const id = generateEmployeeID();
+            const username = document.getElementById('reg-emp-username').value.trim().toLowerCase();
+            const name = document.getElementById('reg-emp-name').value.trim();
+            const pass = document.getElementById('reg-emp-pass').value;
+            const passConfirm = document.getElementById('reg-emp-pass-confirm').value;
+            const messageEl = document.getElementById('reg-message');
+
+
+            if ( !username || !name || !pass || !passConfirm) {
+                showMessage(messageEl, 'All fields are required!', 'error');
+                return;
+            }
+
+
+            if (pass !== passConfirm) {
+                showMessage(messageEl, 'Passwords do not match!', 'error');
+                return;
+            }
+
+
+            if (pass.length < 6) {
+                showMessage(messageEl, 'Password must be at least 6 characters!', 'error');
+                return;
+            }
+
+
+            if (employeeAccounts[id]) {
+                showMessage(messageEl, `Employee ID ${id} already exists!`, 'error');
+                return;
+            }
+
+
+            if (Object.values(employeeAccounts).some(acc => acc.username === username)) {
+                showMessage(messageEl, `Username "${username}" already taken!`, 'error');
+                return;
+            }
+
+
+            employeeAccounts[id] = {
+                username: username,
+                name: name,
+                password: pass,
+                created: new Date().toLocaleDateString()
+            };
+
+
+            localStorage.setItem('employeeAccounts', JSON.stringify(employeeAccounts));
+            employeeData[id] = {}; // Initialize empty time data
+
+
+            // showMessage(messageEl, `✅ Employee ${name} (${id}) registered successfully!`, 'success');
+            showMessage(messageEl, `✅ Employee ${name} (${id}) registered successfully!`, 'success');
+            // Clear form after 2 seconds
+            setTimeout(() => {
+                // document.getElementById('reg-emp-id').value = '';
+                document.getElementById('reg-emp-username').value = '';
+                document.getElementById('reg-emp-name').value = '';
+                document.getElementById('reg-emp-pass').value = '';
+                document.getElementById('reg-emp-pass-confirm').value = '';
+                showMainLogin();
+            }, 2000);
+        }
+
+
+        // EMPLOYEE LOGIN
+        function employeeLogin() {
+            const username = document.getElementById('emp-username').value.trim().toLowerCase();
+            const pass = document.getElementById('emp-pass').value;
+            const messageEl = document.getElementById('login-message');
+
+
+            if (!username || !pass) {
+                showMessage(messageEl, 'Enter Username & Password', 'error');
+                return;
+            }
+
+
+            const account = Object.entries(employeeAccounts).find(([id, acc]) => acc.username === username);
+            if (!account) {
+                showMessage(messageEl, 'Username not found! Register first.', 'error');
+                return;
+            }
+
+
+            const [id, acc] = account;
+            if (acc.password !== pass) {
+                showMessage(messageEl, 'Wrong Password!', 'error');
+                return;
+            }
+
+
+            currentEmpUser = id;
+            document.getElementById('emp-user').textContent = `${acc.name} (${id})`;
+            showSection('employee-dashboard');
+            showEmpMessage(`Welcome ${acc.name}!`, 'success');
+        }
+
+
+        function employeeLogout() {
+            currentEmpUser = null;
+            showMainLogin();
+            document.getElementById('emp-username').value = '';
+            document.getElementById('emp-pass').value = '';
+        }
+
+
+        // EMPLOYEE TIME TRACKING
+        function empAction(action) {
+            if (!currentEmpUser) return;
+
+
+            const id = currentEmpUser;
+            let r = employeeData[id] || {};
+
+
+            switch(action) {
+                case 1: // Time In
+                    if (r.timeIn) {
+                        showEmpMessage('Already Time In today!', 'warning');
+                    } else {
+                        employeeData[id] = { timeIn: new Date() };
+                        localStorage.setItem('employeeData', JSON.stringify(employeeData));
+                        showEmpMessage('🟢 Time In recorded!', 'success');
+                    }
+                    break;
+
+
+                case 2: // Time Out
+                    if (!r.timeIn) {
+                        showEmpMessage('Please Time In first!', 'warning');
+                    } else if (r.timeOut) {
+                        showEmpMessage('Already Time Out today!', 'warning');
+                    } else {
+                        employeeData[id].timeOut = new Date();
+                        localStorage.setItem('employeeData', JSON.stringify(employeeData));
+                        showEmpRecord(id);
+                        showEmpMessage('🔴 Time Out recorded!', 'success');
+                    }
+                    break;
+
+
+                case 3: // Lunch Start
+                    if (!r.timeIn) {
+                        showEmpMessage('Time In first!', 'warning');
+                    } else if (r.lunchStart) {
+                        showEmpMessage('Lunch already started!', 'warning');
+                    } else {
+                        employeeData[id].lunchStart = new Date();
+                        localStorage.setItem('employeeData', JSON.stringify(employeeData));
+                        showEmpMessage('🍽️ Lunch started!', 'success');
+                    }
+                    break;
+
+
+                case 4: // Lunch End
+                    if (!r.lunchStart) {
+                        showEmpMessage('Lunch Start first!', 'warning');
+                    } else if (r.lunchEnd) {
+                        showEmpMessage('Lunch already ended!', 'warning');
+                    } else {
+                        employeeData[id].lunchEnd = new Date();
+                        localStorage.setItem('employeeData', JSON.stringify(employeeData));
+                        showEmpMessage('✅ Lunch ended!', 'success');
+                    }
+                    break;
+
+
+                case 5: // View Record
+                    showEmpRecord(id);
+                    break;
+            }
+        }
+
+
+        function showEmpRecord(id) {
+            const r = employeeData[id];
+            const account = employeeAccounts[id];
+            const hours = calcHours(r);
+           
+            let html = `
+                <div class="record-card">
+                    <h3>${account.name} (${id})</h3>
+            `;
+           
+            if (r.timeIn) html += `<p>🟢 Time In: ${formatTime(r.timeIn)}</p>`;
+            if (r.lunchStart && r.lunchEnd) html += `<p>🍽️ Lunch: ${formatTime(r.lunchStart)} - ${formatTime(r.lunchEnd)}</p>`;
+            if (r.timeOut) html += `<p>🔴 Time Out: ${formatTime(r.timeOut)}</p>`;
+           
+            html += `<p><strong>Total: ${hours} hours</strong></p></div>`;
+           
+            document.getElementById('emp-logs').innerHTML = html;
+        }
+
+
+        function showEmpMessage(msg, type) {
+            const logs = document.getElementById('emp-logs');
+            logs.innerHTML = `<div class="message ${type}">${msg}</div>`;
+            setTimeout(() => {
+                if (type !== 'success') logs.innerHTML = 'Ready to track your time...';
+            }, 3000);
+        }
+
+
+        // ADMIN FUNCTIONS
+        const ADMIN_PASSWORD = 'admin123';
+
+
+        function adminLogin() {
+            const id = document.getElementById('admin-id').value.trim().toUpperCase();
+            const pass = document.getElementById('admin-pass').value;
+
+
+            if (pass !== ADMIN_PASSWORD) {
+                // document.getElementById('admin-logs').innerHTML = '<div class="message_error">Wrong Password!</div>';
+                alert("Wrong username or password")
+                return;
+            }
+
+
+            currentAdminUser = id;
+            document.getElementById('admin-user').textContent = id;
+            showSection('admin-dashboard');
+        }
+
+
+        function adminLogout() {
+            currentAdminUser = null;
+            showMainLogin();
+        }
+
+
+        function adminViewSingle() {
+            const id = document.getElementById('search-emp').value.trim().toUpperCase();
+            if (!id) return showAdminMessage('Enter Employee ID', 'warning');
+
+
+            const account = employeeAccounts[id];
+            const r = employeeData[id];
+           
+            if (!account) {
+                showAdminMessage(`No employee found with ID: ${id}`, 'error');
+                return;
+            }
+
+
+            document.getElementById('admin-logs').innerHTML = `
+                <div class="record-card">
+                    <h3>${account.name} (${id})</h3>
+                    ${r.timeIn ? `<p>🟢 Time In: ${formatTime(r.timeIn)}</p>` : '<p>🟢 Time In: Not set</p>'}
+                    ${r.lunchStart ? `<p>🍽️ Lunch Start: ${formatTime(r.lunchStart)}</p>` : '<p>🍽️ Lunch Start: Not set</p>'}
+                    ${r.lunchEnd ? `<p>🍽️ Lunch End: ${formatTime(r.lunchEnd)}</p>` : '<p>🍽️ Lunch End: Not set</p>'}
+                    ${r.timeOut ? `<p>🔴 Time Out: ${formatTime(r.timeOut)}</p>` : '<p>🔴 Time Out: Not set</p>'}
+                </div>
+            `;
+        }
+
+
+        function adminViewAll() {
+    if (Object.keys(employeeAccounts).length === 0) {
+        showAdminMessage('No registered employees', 'warning');
+        return;
+    }
+
+
+    let html = '<div class="summary-card"><h3>All Employees (' + Object.keys(employeeAccounts).length + ')</h3></div>';
+
+
+    Object.entries(employeeAccounts).forEach(([id, account]) => {
+        const r = employeeData[id] || {};
+        const totalHours = calcHours(r); // ✅ GET TOTAL HOURS
+
+
+        html += `
+            <div class="record-card">
+                <strong>${id}: ${account.name}</strong><br>
+                <small>
+                    🟢 Time In: ${formatTime(r.timeIn)}<br>
+                    🍽️ Start Lunch: ${formatTime(r.lunchStart)} | 🍽️ End Lunch: ${formatTime(r.lunchEnd)}<br>
+                    🔴 Time Out: ${formatTime(r.timeOut)}<br>
+                    <strong>⏱️ Total Work Hours: ${totalHours} hrs</strong> <!-- ✅ ADDED -->
+                </small>
+            </div>
+        `;
+    });
+
+
+    document.getElementById('admin-logs').innerHTML = html;
+}
+
+
+        function adminManageUsers() {
+            if (Object.keys(employeeAccounts).length === 0) {
+                showAdminMessage('No registered employees', 'warning');
+                return;
+            }
+
+
+            let html = '<div class="summary-card"><h3>Registered Employees</h3></div>';
+            Object.entries(employeeAccounts).forEach(([id, account]) => {
+                html += `
+                    <div class="record-card">
+                        <strong>${id}</strong> - ${account.name} (${account.username})<br>
+                        <small>Created: ${account.created}</small>
+                    </div>
+                `;
+            });
+            document.getElementById('admin-logs').innerHTML = html;
+        }
+
+
+        function adminClear() {
+            document.getElementById('admin-logs').innerHTML = 'Admin dashboard ready...';
+            document.getElementById('search-emp').value = '';
+        }
+
+
+        function showAdminMessage(msg, type) {
+            const logs = document.getElementById('admin-logs');
+            logs.innerHTML = `<div class="message ${type}">${msg}</div>`;
+            setTimeout(() => {
+                logs.innerHTML = 'Admin dashboard ready...';
+            }, 3000);
+        }
+
+
+        // UTILITY FUNCTIONS
+        function formatTime(t) {
+            return t ? new Date(t).toLocaleString() : 'Not set';
+        }
+
+
+        function calcHours(r) {
+    if (!r.timeIn || !r.timeOut) return '0.00';
+
+
+    let timeIn = new Date(r.timeIn);
+    let timeOut = new Date(r.timeOut);
+
+
+    if (isNaN(timeIn) || isNaN(timeOut)) return '0.00';
+
+
+    let total = (timeOut - timeIn) / 3600000;
+
+
+    if (r.lunchStart && r.lunchEnd) {
+        let lunchStart = new Date(r.lunchStart);
+        let lunchEnd = new Date(r.lunchEnd);
+
+
+        if (!isNaN(lunchStart) && !isNaN(lunchEnd)) {
+            total -= (lunchEnd - lunchStart) / 3600000;
+        }
+    }
+
+
+    if (isNaN(total) || total < 0) return '0.00';
+
+
+    return total.toFixed(2);
+}
+    </script>
+</body>
+</html>
+
+
+
+
+
+
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+
+body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+    padding: 20px 0;
+    line-height: 1.6;
+}
+
+
+.container {
+    max-width: 600px;
+    margin: 0 auto;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    border-radius: 24px;
+    box-shadow: 0 25px 50px rgba(0,0,0,0.15);
+    overflow: hidden;
+    border: 1px solid rgba(255,255,255,0.2);
+}
+
+
+.section {
+    padding: 40px 30px;
+    display: none;
+}
+
+
+.section.active {
+    display: block;
+}
+
+
+.back-btn {
+    background: rgba(255,255,255,0.2);
+    color: #333;
+    border: none;
+    padding: 12px 20px;
+    border-radius: 20px;
+    font-weight: 500;
+    cursor: pointer;
+    margin-bottom: 20px;
+    transition: all 0.3s;
+}
+
+
+.back-btn:hover {
+    background: rgba(255,255,255,0.3);
+    transform: translateY(-1px);
+}
+
+
+h1, h2 {
+    text-align: center;
+    margin-bottom: 20px;
+    color: #1f2937;
+}
+
+
+h1 {
+    font-size: 28px;
+}
+
+
+h2 {
+    font-size: 22px;
+}
+
+
+.role-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin-top: 30px;
+}
+
+
+.role-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 15px;
+    padding: 20px;
+    background: rgba(255,255,255,0.9);
+    border-radius: 16px;
+    border: 2px solid transparent;
+    color: #333;
+    font-weight: 600;
+    font-size: 16px;
+    transition: all 0.3s;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+    cursor: pointer;
+}
+
+
+.role-btn:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+}
+
+
+.employee-role { border-color: #28a745; }
+.register-role { border-color: #10b981; }
+.admin-role { border-color: #ffc107; }
+
+
+label {
+    display: block;
+    margin: 20px 0 8px;
+    font-weight: 600;
+    color: #374151;
+    font-size: 14px;
+    text-align: left;
+}
+
+
+input {
+    width: 100%;
+    padding: 16px;
+    border: 2px solid #e5e7eb;
+    border-radius: 12px;
+    font-size: 16px;
+    transition: all 0.3s;
+    background: white;
+}
+
+
+input:focus {
+    outline: none;
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+
+.primary-btn {
+    width: 100%;
+    background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+    color: white;
+    font-weight: 600;
+    font-size: 16px;
+    padding: 16px;
+    margin-top: 20px;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+
+.primary-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px rgba(59, 130, 246, 0.4);
+}
+
+
+.user-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px;
+    background: linear-gradient(135deg, #f8fafc, #e2e8f0);
+    margin: -40px -30px 30px -30px;
+    border-radius: 16px 16px 0 0;
+}
+
+
+.logout-btn {
+    background: #ef4444;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+
+.logout-btn:hover {
+    background: #dc2626;
+    transform: translateY(-1px);
+}
+
+
+.action-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+    margin-bottom: 30px;
+}
+
+
+.action-btn {
+    padding: 18px;
+    border: 2px solid #e5e7eb;
+    background: white;
+    border-radius: 12px;
+    font-weight: 600;
+    font-size: 15px;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+
+.action-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+}
+
+
+.time-in { border-color: #28a745; color: #28a745; }
+.time-out { border-color: #ef4444; color: #ef4444; }
+.lunch-start { border-color: #f59e0b; color: #f59e0b; }
+.lunch-end { border-color: #10b981; color: #10b981; }
+.view-record { grid-column: span 2; background: linear-gradient(135deg, #3b82f6, #1d4ed8); color: white; border-color: #3b82f6; }
+
+
+.logs {
+    min-height: 200px;
+    background: #f8fafc;
+    border-radius: 16px;
+    padding: 25px;
+    border: 2px dashed #e2e8f0;
+    overflow-y: auto;
+    max-height: 500px;
+}
+
+
+.record-card {
+    background: white;
+    padding: 20px;
+    border-radius: 12px;
+    border-left: 4px solid #3b82f6;
+    margin-bottom: 15px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    transition: all 0.3s;
+}
+
+
+.record-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.12);
+}
+
+
+.summary-card {
+    background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+    color: white;
+    padding: 25px;
+    border-radius: 16px;
+    margin-bottom: 20px;
+    text-align: center;
+    box-shadow: 0 10px 30px rgba(59, 130, 246, 0.3);
+}
+
+
+.message {
+    padding: 15px 20px;
+    border-radius: 10px;
+    font-weight: 500;
+    text-align: center;
+    margin: 10px 0;
+}
+
+
+.message.success {
+    background: #d1fae5;
+    color: #065f46;
+    border: 2px solid #10b981;
+}
+
+
+.message.error {
+    background: #fee2e2;
+    color: #991b1b;
+    border: 2px solid #ef4444;
+}
+
+
+.message.warning {
+    background: #fef3c7;
+    color: #92400e;
+    border: 2px solid #f59e0b;
+}
+
+
+/* TOTAL HOURS STYLING */
+.total-hours {
+    font-size: 18px;
+    font-weight: 700;
+    color: #10b981;
+    background: linear-gradient(135deg, #dcfce7, #bbf7d0);
+    padding: 12px 20px;
+    border-radius: 10px;
+    border-left: 5px solid #059669;
+    margin-top: 15px;
+}
+
+
+.grand-total {
+    background: linear-gradient(135deg, #10b981, #059669) !important;
+    color: white !important;
+    font-size: 24px;
+    padding: 30px !important;
+    margin-top: 25px !important;
+}
+
+
+.hours-highlight {
+    color: #007bff;
+    font-weight: 700;
+    font-size: 16px;
+}
+
+
+/* Responsive Design */
+@media (max-width: 480px) {
+    .container {
+        margin: 10px;
+        border-radius: 20px;
+        padding: 10px;
+    }
+   
+    .section {
+        padding: 30px 20px;
+    }
+   
+    .action-grid {
+        grid-template-columns: 1fr;
+    }
+   
+    h1 {
+        font-size: 24px;
+    }
+   
+    .user-info {
+        flex-direction: column;
+        gap: 15px;
+        text-align: center;
+    }
+}`
